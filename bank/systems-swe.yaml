@@ -1,0 +1,192 @@
+- id: sys-001
+  category: systems-swe
+  skills: [software-engineering, python]
+  difficulty: 1
+  prompt: "What is the difference between a process and a thread, and when does threading actually help in Python?"
+  followups:
+    - "What is the GIL and what does it serialize?"
+    - "How do you get real parallelism for CPU-bound Python code?"
+    - "What shared-state bugs do threads invite?"
+  good_answer:
+    - "Processes have isolated memory, threads share the address space"
+    - "The GIL lets only one thread run Python bytecode at a time"
+    - "Threading still helps for I/O-bound work where the GIL is released"
+    - "Multiprocessing or native extensions give CPU parallelism"
+    - "Threads invite races on shared objects, processes pay pickling costs instead"
+    - "Modern Python has per-interpreter GIL options worth mentioning briefly"
+- id: sys-002
+  category: systems-swe
+  skills: [software-engineering, python]
+  difficulty: 2
+  prompt: "Compare async event loops, threads, and processes for a service that calls ten slow APIs per request."
+  followups:
+    - "What breaks if one async handler runs a blocking call?"
+    - "Roughly how many concurrent connections can one event loop handle?"
+    - "When would you still pick a thread pool here?"
+  good_answer:
+    - "I/O-bound fan-out fits async, thousands of connections on one loop"
+    - "Threads work too but cost memory per stack and context switches"
+    - "Processes only if there is CPU work between calls"
+    - "A blocking call inside async stalls every coroutine on that loop"
+    - "Use asyncio.gather with timeouts and bounded concurrency semaphores"
+    - "Offload unavoidable blocking work to a thread executor"
+- id: sys-003
+  category: systems-swe
+  skills: [software-engineering, cs-fundamentals]
+  difficulty: 2
+  prompt: "Explain virtual memory and paging. What happens when a process exceeds physical RAM, and why can thrashing destroy performance?"
+  followups:
+    - "What is a page fault and why are some faults cheap?"
+    - "What is swap and why is thrashing worse than just being slow?"
+    - "How does memory-mapped I/O relate to paging?"
+  good_answer:
+    - "Each process sees a virtual address space mapped to physical pages"
+    - "Cold or evicted pages fault in from disk on access"
+    - "Overcommit means constant eviction and reload, thrashing, disk-bound"
+    - "Minor faults reuse cached pages, major faults hit storage"
+    - "mmap lets file access ride the same paging machinery"
+    - "Working set size matters more than total allocation"
+- id: sys-004
+  category: systems-swe
+  skills: [software-engineering, cs-fundamentals]
+  difficulty: 2
+  prompt: "What is a deadlock? Give the four conditions and one realistic scenario where a tool or agent pipeline hits one."
+  followups:
+    - "Which condition is easiest to break in practice?"
+    - "How do timeouts and lock ordering help?"
+    - "Can two threads deadlock on a pair of queues?"
+  good_answer:
+    - "Mutual exclusion, hold and wait, no preemption, circular wait"
+    - "Classic case, two threads acquiring two locks in opposite order"
+    - "Agent pipelines deadlock when workers wait on each other's queues"
+    - "Break circular wait with a global lock ordering"
+    - "Timeouts convert deadlocks into retryable errors"
+    - "Lock-free or message-passing designs sidestep the problem"
+- id: sys-005
+  category: systems-swe
+  skills: [software-engineering, cloud-infra]
+  difficulty: 2
+  prompt: "Design a rate limiter for an API. Compare token bucket and sliding window, and say where you would enforce it."
+  followups:
+    - "How do you rate limit across multiple server instances?"
+    - "What do you return when the limit is hit?"
+    - "How do you allow bursty but fair traffic?"
+  good_answer:
+    - "Token bucket allows bursts up to capacity at an average refill rate"
+    - "Sliding window counts requests in a moving interval, smoother but stricter"
+    - "Enforce at the gateway so backends are protected"
+    - "Shared state in Redis or a sidecar keeps limits global across instances"
+    - "Return 429 with Retry-After, and shed load before queues explode"
+    - "Per-key buckets give fairness, tiered buckets give premium headroom"
+- id: sys-006
+  category: systems-swe
+  skills: [software-engineering, cloud-infra]
+  difficulty: 2
+  prompt: "What is a cache invalidation strategy for a service reading from a database? Walk through write-through, TTL, and event-driven."
+  followups:
+    - "Why is cache-aside the most common default?"
+    - "What is the thundering herd problem and how do you blunt it?"
+    - "How do you cache LLM-style expensive calls safely?"
+  good_answer:
+    - "Cache-aside reads check cache then DB, writes update DB and delete cache"
+    - "TTLs bound staleness without coordination, simple and robust"
+    - "Event-driven invalidation reacts to change feeds, fresher but more machinery"
+    - "Delete-after-write beats update-after-write to avoid races"
+    - "Thundering herd, jitter TTLs and use request coalescing or locks per key"
+    - "Expensive model calls cache on hashed prompt plus version, mind non-determinism"
+- id: sys-007
+  category: systems-swe
+  skills: [software-engineering, cloud-infra]
+  difficulty: 2
+  prompt: "What is a load balancer and what do health checks actually need to test for a model-serving backend?"
+  followups:
+    - "Why is a TCP check not enough?"
+    - "What is the difference between liveness and readiness?"
+    - "How does sticky sessioning interact with KV-cache-aware routing?"
+  good_answer:
+    - "Balancer distributes requests and removes unhealthy backends"
+    - "Health checks must exercise the real path, a small inference probe not just a port"
+    - "Liveness says restart me, readiness says stop sending traffic"
+    - "A loaded but OOM-ing GPU passes TCP checks and fails probes"
+    - "Least-outstanding-tokens routing beats round robin for LLM replicas"
+    - "Prefix-cache affinity wants requests with shared prompts routed to the same replica"
+- id: sys-008
+  category: systems-swe
+  skills: [software-engineering, sql]
+  difficulty: 2
+  prompt: "A SQL query backing your dashboard suddenly takes 30 seconds. How do you diagnose and fix it?"
+  followups:
+    - "What does an execution plan tell you?"
+    - "When does an index hurt rather than help?"
+    - "What if the query is fine but the data grew 100x?"
+  good_answer:
+    - "Start with EXPLAIN, look for sequential scans and bad join order"
+    - "Add or fix indexes matching the filter and projection, watch for function-wrapped columns"
+    - "Check statistics staleness causing bad plans"
+    - "N-plus-1 access patterns move work into the app, batch or join instead"
+    - "At scale, precompute aggregates, partition, or materialize views"
+    - "Add query timeouts and pagination so one query cannot sink the service"
+- id: sys-009
+  category: systems-swe
+  skills: [software-engineering, python]
+  difficulty: 2
+  prompt: "How do you debug a Python service that intermittently hangs in production, without being able to reproduce it locally?"
+  followups:
+    - "How do you get a stack trace from a hung process?"
+    - "What logging or tracing makes hangs attributable?"
+    - "Name two likely causes for hangs in an async service."
+  good_answer:
+    - "Attach with py-spy or send SIGQUIT to dump all thread stacks"
+    - "Add watchdog timeouts that log the pending coroutine or lock holder"
+    - "Structured logs with request IDs tie hangs to upstream calls"
+    - "Likely causes, un-awaited blocking calls on the loop and unbounded external calls without timeouts"
+    - "Another classic, connection pool exhaustion under load"
+    - "Reproduce with load testing plus injected latency on dependencies"
+- id: sys-010
+  category: systems-swe
+  skills: [software-engineering, python]
+  difficulty: 2
+  prompt: "What makes good tests for a non-trivial Python codebase? Contrast unit, integration, and regression tests with an example of each from an ML tool."
+  good_answer:
+    - "Unit tests pin pure logic fast, no GPU or network"
+    - "Integration tests exercise real seams, model load or API calls, fewer and slower"
+    - "Regression tests replay known failing cases forever after each bug"
+    - "Fixtures and dependency injection keep tests hermetic"
+    - "Parametrize over edge cases instead of copy-paste test bodies"
+    - "A test that cannot fail on a bug is decoration, mutation-check the important ones"
+  followups:
+    - "How do you decide what deserves an integration test?"
+    - "What do you do with a flaky test?"
+    - "How should test naming and structure communicate intent?"
+- id: sys-011
+  category: systems-swe
+  skills: [software-engineering, cloud-infra]
+  difficulty: 3
+  prompt: "You are adding a new dependency-heavy ML feature to a service. How do you ship it safely to production?"
+  followups:
+    - "What does a feature flag buy you here?"
+    - "How do you roll back a model, not just code?"
+    - "What metrics tell you the feature is misbehaving?"
+  good_answer:
+    - "Ship behind a flag, default off, enable for canary traffic"
+    - "Version the model artifact so rollback is a config flip"
+    - "Shadow mode runs the feature without user impact, compare outputs"
+    - "Watch latency, error rate, and output-quality monitors per version"
+    - "Pin dependencies and containerize, ML deps break silently"
+    - "Have a kill switch and a tested rollback drill before launch"
+- id: sys-012
+  category: systems-swe
+  skills: [software-engineering, cs-fundamentals]
+  difficulty: 3
+  prompt: "Explain what happens, roughly, when you type a URL into a browser and press enter. Go as deep as you find interesting."
+  followups:
+    - "What does TLS handshake actually establish?"
+    - "Where do CDNs and load balancers sit in the path?"
+    - "Why is connection reuse so important for latency?"
+  good_answer:
+    - "DNS resolution, often cached, returns an IP"
+    - "TCP connect plus TLS handshake establish an encrypted session, TLS 1.3 in one round trip"
+    - "HTTP request traverses CDN, LB, and app servers"
+    - "Server renders or streams, browser parses, fetches subresources, paints"
+    - "Keep-alive and HTTP/2 or 3 multiplexing cut handshake costs"
+    - "Caching at browser, CDN, and server layers changes the whole path"

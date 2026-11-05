@@ -1,0 +1,320 @@
+- id: llm-001
+  category: llm-agents
+  skills: [deep-learning, nlp]
+  difficulty: 2
+  prompt: "Walk me through self-attention in a transformer, step by step, from token embeddings to the output of one attention layer."
+  followups:
+    - "Why scale the dot product by the square root of the head dimension?"
+    - "What do Q, K, V actually mean intuitively?"
+    - "Where does the feed-forward network fit and what is it doing?"
+  good_answer:
+    - "Each token gets query, key, value vectors from learned projections"
+    - "Attention scores are Q dot K over all tokens, softmaxed into weights"
+    - "Output is the weighted sum of value vectors, so each token gathers context"
+    - "Scaling by sqrt(dk) keeps softmax out of saturated regions as dimension grows"
+    - "Q is what a token looks for, K is what it advertises, V is what it carries"
+    - "FFN applies position-wise nonlinear transformation after mixing context"
+- id: llm-002
+  category: llm-agents
+  skills: [deep-learning, nlp]
+  difficulty: 2
+  prompt: "Why does attention use multiple heads instead of one big attention over the full dimension?"
+  followups:
+    - "What would you expect different heads to specialize in?"
+    - "How do heads combine back into one output?"
+    - "Any downside of many heads?"
+  good_answer:
+    - "Multiple heads attend in lower-dimensional subspaces in parallel"
+    - "One softmax per head lets different heads focus on different relations"
+    - "A single head must average one distribution, blurring competing patterns"
+    - "Heads often specialize, syntax, coreference, positional copying"
+    - "Outputs concatenate then pass an output projection"
+    - "Same total parameters and compute as one full-dim head, more expressive"
+- id: llm-003
+  category: llm-agents
+  skills: [llm-serving, gpu-hardware]
+  difficulty: 2
+  prompt: "What is the KV cache in autoregressive decoding? How much memory does it take and when does it become the bottleneck?"
+  followups:
+    - "Compute the KV cache size for a 7B model at 32k context, roughly."
+    - "Why does the cache grow with batch size and sequence length?"
+    - "What breaks if you quantize the KV cache aggressively?"
+  good_answer:
+    - "Cache stores past keys and values so each new token avoids recomputing them"
+    - "Turns per-token attention from quadratic to linear in generation"
+    - "Size is 2 times layers times kv-heads times head-dim times precision times tokens times batch"
+    - "Long contexts and large batches make KV cache exceed weight memory"
+    - "Decoding becomes memory-bandwidth bound, cache reads dominate"
+    - "Quantized KV saves memory but can degrade retrieval and long-context accuracy"
+- id: llm-004
+  category: llm-agents
+  skills: [llm-serving, deep-learning]
+  difficulty: 3
+  prompt: "Explain multi-query attention and grouped-query attention. What do they trade away?"
+  followups:
+    - "How does GQA shrink the KV cache?"
+    - "Why can a model trained with GQA still match MQA quality?"
+    - "What is the uptraining trick for existing MHA models?"
+  good_answer:
+    - "MHA gives every query head its own K and V heads, GQA shares K/V across groups"
+    - "MQA is the extreme, one shared K/V head for all queries"
+    - "KV cache shrinks by the group factor, big serving memory win"
+    - "Fewer K/V heads slightly reduces expressiveness, GQA is a sweet spot"
+    - "Uptraining fine-tunes an MHA checkpoint into GQA cheaply"
+    - "Bandwidth per decoded token drops, throughput rises"
+- id: llm-005
+  category: llm-agents
+  skills: [deep-learning, nlp]
+  difficulty: 3
+  prompt: "How do transformers inject position information, and what is rotary position embedding doing?"
+  followups:
+    - "Why does plain attention need position at all?"
+    - "What does RoPE do to query and key vectors geometrically?"
+    - "How do models extend context length beyond training length?"
+  good_answer:
+    - "Attention is permutation invariant, position must be injected explicitly"
+    - "RoPE rotates Q and K by an angle proportional to position per dimension pair"
+    - "Relative position falls out of the dot product, only offsets matter"
+    - "Interpolation or NTK-aware scaling compresses positions to extend context"
+    - "YaRN and similar methods tune which frequency bands to rescale"
+    - "Longer training contexts and better data also extend effective length"
+- id: llm-006
+  category: llm-agents
+  skills: [llm-serving, llm-finetuning]
+  difficulty: 1
+  prompt: "Explain temperature, top-k, and top-p sampling. What does each change about the generated text?"
+  followups:
+    - "What happens at temperature zero?"
+    - "Why can top-p be better than top-k?"
+    - "When should an agent use greedy decoding?"
+  good_answer:
+    - "Temperature divides logits before softmax, higher flattens the distribution"
+    - "Top-k keeps the k most likely tokens, top-p keeps the smallest set covering p mass"
+    - "Top-p adapts the candidate set to distribution sharpness"
+    - "Temperature zero means argmax, deterministic greedy decoding"
+    - "Greedy suits tool calls and extraction, sampling suits creative text"
+    - "Repetition and truncation issues interact with all of these"
+- id: llm-007
+  category: llm-agents
+  skills: [llm-serving, gpu-hardware]
+  difficulty: 2
+  prompt: "You want to run a 7B model on a laptop with 16GB of RAM. Explain quantization and what GGUF formats like Q4_K_M actually do."
+  followups:
+    - "What is group-wise quantization and why group size matters?"
+    - "What degrades first when you go from Q8 to Q4 to Q2?"
+    - "Why does quantization help consumer CPUs and GPUs run bigger models?"
+  good_answer:
+    - "Quantization stores weights in fewer bits, 4-bit cuts memory roughly 4x from fp16"
+    - "GGUF stores quantized weights plus metadata, llama.cpp loads and runs it"
+    - "Q4_K_M uses grouped blocks with scales, K-quants mix sensitive and insensitive layers"
+    - "Per-group scales and zero-points keep local dynamic range"
+    - "Perplexity rises slowly to Q4, sharply below; math and long-context degrade first"
+    - "Bigger quantized models usually beat smaller fp16 ones on fixed RAM"
+- id: llm-008
+  category: llm-agents
+  skills: [llm-serving, gpu-hardware]
+  difficulty: 3
+  prompt: "What is the difference between weight quantization and KV cache quantization, and why are they evaluated separately?"
+  followups:
+    - "Why is the KV cache harder to quantize than weights?"
+    - "What outlier problem shows up in activations and KV?"
+    - "How would you measure the quality hit of each?"
+  good_answer:
+    - "Weight quantization compresses static parameters, KV quantization compresses runtime state"
+    - "KV values vary per token and per channel, outliers make naive quantization lossy"
+    - "Attention sinks and outlier channels dominate errors"
+    - "KV quantization changes with every decode step, errors compound over generation"
+    - "Evaluate separately with perplexity plus long-context retrieval tasks"
+    - "Mixed precision, keeping recent tokens in fp16, is a common compromise"
+- id: llm-009
+  category: llm-agents
+  skills: [llm-finetuning, pytorch]
+  difficulty: 2
+  prompt: "Explain LoRA. Why does it work, how do you pick rank, and what are its limits?"
+  followups:
+    - "What is the inference cost of LoRA versus full fine-tuning?"
+    - "Which layers benefit most from LoRA adapters?"
+    - "When would you choose full fine-tuning anyway?"
+  good_answer:
+    - "LoRA freezes weights and trains low-rank delta W as B times A products"
+    - "Fine-tuning updates are empirically low intrinsic rank"
+    - "Rank r trades capacity against parameters, 8 to 64 typical, raise it if task is far from base"
+    - "Adapters merge into weights at inference, zero added latency"
+    - "Saves optimizer state and VRAM, enables many task variants per base model"
+    - "Full fine-tuning wins for large distribution shift or when you must change attention behavior deeply"
+- id: llm-010
+  category: llm-agents
+  skills: [llm-finetuning, ml-evals]
+  difficulty: 3
+  prompt: "Describe the RLHF pipeline. Then explain why DPO was proposed and what it changes."
+  followups:
+    - "What is the reward model trained on?"
+    - "What is the KL penalty to the reference policy for?"
+    - "What are known failure modes of RLHF?"
+  good_answer:
+    - "SFT first, then a reward model on preference pairs, then PPO optimizing that reward"
+    - "Reward model scores completions, policy maximizes score plus KL constraint"
+    - "KL term prevents reward hacking and drift from the base model"
+    - "DPO reparameterizes the objective into a direct classification loss on preference pairs"
+    - "No reward model, no online rollouts, much simpler and cheaper training"
+    - "RLHF failure modes include verbosity bias, sycophancy, over-alignment"
+- id: llm-011
+  category: llm-agents
+  skills: [llm-serving, deep-learning]
+  difficulty: 2
+  prompt: "Why does doubling the context length roughly quadruple prefill compute but only linearly increase decode cost per token?"
+  followups:
+    - "Where does the quadratic term come from?"
+    - "What techniques reduce long-context cost?"
+    - "Why is time-to-first-token the metric users feel for long prompts?"
+  good_answer:
+    - "Attention compares every token to every previous token, quadratic in sequence"
+    - "Prefill processes the whole prompt at once, paying that quadratic cost"
+    - "Each decode step attends over cached KVs, linear per token"
+    - "Sparse attention, sliding windows, and GQA cut the quadratic term"
+    - "Flash Attention keeps the math exact but avoids materializing the quadratic matrix"
+    - "TTFT dominates UX for long prompts, decode speed is tokens per second"
+- id: llm-012
+  category: llm-agents
+  skills: [agents-rag, nlp]
+  difficulty: 2
+  prompt: "Design a RAG system for a company wiki. Walk me through every stage from ingestion to answer."
+  followups:
+    - "How do you handle tables and code in documents?"
+    - "What retrieval metric would you track and why?"
+    - "When does RAG beat fine-tuning?"
+  good_answer:
+    - "Ingest, parse, chunk, embed, index in a vector store with metadata"
+    - "Query embeds, retrieves top-k, optionally reranks, then stuffs context into the prompt"
+    - "Hybrid lexical plus dense retrieval catches exact terms and semantics"
+    - "Track retrieval quality with recall@k or MRR before blaming the generator"
+    - "Citations and groundedness checks reduce hallucination"
+    - "RAG wins when knowledge changes often or you need provenance, fine-tuning changes style and behavior"
+- id: llm-013
+  category: llm-agents
+  skills: [agents-rag, nlp]
+  difficulty: 2
+  prompt: "Your RAG answers are wrong even though retrieval looks plausible. How do you debug chunking and retrieval quality?"
+  followups:
+    - "What chunk size and overlap problems cause missed answers?"
+    - "What is a reranker and where does it sit in the pipeline?"
+    - "How do you build an eval set for this quickly?"
+  good_answer:
+    - "Separate retrieval errors from generation errors before fixing anything"
+    - "Log retrieved passages per query and label whether the answer is present"
+    - "Chunks too large dilute embeddings, too small split the answer across chunks"
+    - "Parent-document or sentence-window retrieval decouples search granularity from prompt granularity"
+    - "Cross-encoder reranking rescues top-k misses cheaply"
+    - "A few hundred labeled question-answer-source triples make progress measurable"
+- id: llm-014
+  category: llm-agents
+  skills: [agents-rag, ml-evals]
+  difficulty: 2
+  prompt: "What causes hallucination in LLMs, and what concrete techniques reduce it in a production assistant?"
+  followups:
+    - "Why does the model keep generating confidently wrong facts?"
+    - "How do refusal and uncertainty behaviors get trained or prompted?"
+    - "What eval catches hallucination that accuracy metrics miss?"
+  good_answer:
+    - "Next-token training rewards plausible continuations, not verified truth"
+    - "Decoding can drift from retrieved context into parametric memory"
+    - "Ground answers in retrieved context and require citations"
+    - "Constrained decoding or tool calls for facts like dates and numbers"
+    - "Self-check passes or a second model verifying claims against sources"
+    - "Measure faithfulness to provided context, not just answer correctness"
+- id: llm-015
+  category: llm-agents
+  skills: [agents-rag, python]
+  difficulty: 2
+  prompt: "How does tool calling or function calling actually work under the hood in a chat model?"
+  followups:
+    - "How does the model know the tool schemas?"
+    - "What happens between the model emitting a call and the answer continuing?"
+    - "How do you stop the model from calling a tool with invalid arguments?"
+  good_answer:
+    - "Tool schemas are serialized into the prompt or a special template"
+    - "The model is trained to emit a structured call token sequence instead of prose"
+    - "Runtime parses the call, executes it, and feeds the result back as a new message"
+    - "The loop repeats until the model emits a final answer"
+    - "Schema validation plus retry-with-error turns fixes malformed arguments"
+    - "Fine-tuning on tool-use traces improves selection accuracy"
+- id: llm-016
+  category: llm-agents
+  skills: [agents-rag, software-engineering]
+  difficulty: 2
+  prompt: "You are designing an agent that must complete multi-step tasks with tools. How do you make it reliable?"
+  followups:
+    - "How do you handle a tool failing mid-task?"
+    - "When do you use a fixed workflow versus free-form planning?"
+    - "How do you bound cost and runaway loops?"
+  good_answer:
+    - "Explicit state, step budgets, and timeouts prevent runaway loops"
+    - "Prefer fixed workflows where the task is known, free-form planning only where needed"
+    - "Give the model tool errors and partial results so it can recover"
+    - "Validate tool outputs before they re-enter context"
+    - "Checkpoint progress so a crash resumes instead of restarting"
+    - "Log every step for replay-based debugging and regression tests"
+- id: llm-017
+  category: llm-agents
+  skills: [agents-rag, software-engineering]
+  difficulty: 2
+  prompt: "What is prompt injection in an agent with tool access, and how would you defend against it?"
+  followups:
+    - "Why is an agent that reads web pages especially vulnerable?"
+    - "Can guardrail prompts actually stop injection?"
+    - "What capability-level controls limit the blast radius?"
+  good_answer:
+    - "Injected instructions arrive via retrieved content, tool output, or user data"
+    - "The model cannot inherently separate instructions from data"
+    - "Guardrail prompts reduce but do not eliminate risk"
+    - "Least privilege tools, scoped credentials, and confirmation for destructive actions"
+    - "Treat untrusted content as data, wrap and delimit it, strip instruction-like patterns"
+    - "Log and audit actions, rate-limit, and sandbox execution"
+- id: llm-018
+  category: llm-agents
+  skills: [ml-evals, agents-rag]
+  difficulty: 3
+  prompt: "You need to evaluate whether a model or prompt change made your agent better. How do you build the eval harness?"
+  followups:
+    - "How do you avoid benchmark contamination?"
+    - "What are the pitfalls of LLM-as-judge scoring?"
+    - "How do you get statistical confidence from noisy generation?"
+  good_answer:
+    - "Fixed task suite with deterministic graders where possible, exact match or execution-based"
+    - "Regression suite runs on every change with per-case pass tracking"
+    - "Hold out private eval sets to dodge contamination and overfitting to public sets"
+    - "LLM-as-judge needs rubrics, pairwise comparisons, and spot-check calibration against humans"
+    - "Run multiple seeds or samples, report variance, use paired comparisons"
+    - "Track cost and latency alongside quality, not accuracy alone"
+- id: llm-019
+  category: llm-agents
+  skills: [llm-serving, gpu-hardware]
+  difficulty: 3
+  prompt: "Explain speculative decoding. Why can a small draft model make a big model faster without changing its output distribution?"
+  followups:
+    - "What happens to drafted tokens that the big model rejects?"
+    - "Why is this a win even though the big model runs more forward passes?"
+    - "What limits the speedup?"
+  good_answer:
+    - "Draft model proposes k tokens, target model verifies all in one parallel pass"
+    - "Verification uses the same teacher-forcing trick as training, cheap in FLOPs"
+    - "Rejection sampling keeps the exact target distribution, accepted tokens match target sampling"
+    - "Decoding is memory-bandwidth bound, one verification pass beats k sequential steps"
+    - "Speedup bounded by draft acceptance rate and Amdahl on prefill"
+    - "Draft-target agreement on easy text gives the biggest wins"
+- id: llm-020
+  category: llm-agents
+  skills: [nlp, llm-serving]
+  difficulty: 2
+  prompt: "How does a BPE tokenizer work, and why do token limits, token costs, and multilingual performance all trace back to it?"
+  followups:
+    - "What happens to rare words and non-Latin scripts under a mostly-English vocabulary?"
+    - "Why do tokenizers break string tasks like counting letters?"
+    - "How does vocabulary size trade off against sequence length?"
+  good_answer:
+    - "BPE starts at characters and merges the most frequent pairs until vocab size is met"
+    - "Frequent words become single tokens, rare ones split into subwords"
+    - "Costs and context windows are counted in tokens, so compression ratio is money"
+    - "Non-Latin scripts burn more tokens per word, raising cost and shrinking effective context"
+    - "Subword splits destroy character-level structure, hurting spelling and counting tasks"
+    - "Larger vocabularies shorten sequences but grow embedding matrices"

@@ -1,0 +1,190 @@
+- id: dsa-001
+  category: dsa-coding
+  skills: [dsa, python]
+  difficulty: 1
+  prompt: "Given an array of integers and a target, return the indices of the two numbers that add up to the target. Assume exactly one solution and no reuse of the same element."
+  followups:
+    - "What data structure turns the brute force into linear time?"
+    - "How would you handle duplicate values?"
+    - "What is the space-time tradeoff you just made?"
+  good_answer:
+    - "Brute force checks all pairs in O(n squared)"
+    - "Hash map from value to index, one pass, look up complement"
+    - "O(n) time, O(n) space"
+    - "Store indices after checking so an element is not matched with itself"
+    - "Duplicates work because the complement lookup happens before insertion"
+- id: dsa-002
+  category: dsa-coding
+  skills: [dsa, python]
+  difficulty: 1
+  prompt: "Given a sorted array and a target, return the index where the target would be inserted to keep order. If it exists, return its index."
+  followups:
+    - "Why does binary search apply here?"
+    - "What are the off-by-one traps in the loop bounds?"
+    - "How does this generalize to lower-bound and upper-bound searches?"
+  good_answer:
+    - "Binary search, invariant is answer lies in the half-open window"
+    - "Return the left bound when the loop exits"
+    - "O(log n) time, O(1) space"
+    - "Mid computed as left plus (right minus left) over 2 avoids overflow in other languages"
+    - "Lower bound finds first element not less than target, upper bound first greater"
+- id: dsa-003
+  category: dsa-coding
+  skills: [dsa, python]
+  difficulty: 2
+  prompt: "Given a list of intervals, merge all overlapping ones and return the merged list. For example, intervals like one-two and two-three merge into one-three."
+  followups:
+    - "What preprocessing makes the merge a single pass?"
+    - "How do you decide two intervals overlap versus merely touch?"
+    - "What if the input arrives as a stream?"
+  good_answer:
+    - "Sort by start time, O(n log n)"
+    - "Sweep, extend current interval when next start is at most current end"
+    - "Otherwise push current and start a new one"
+    - "O(n log n) time, O(n) output space"
+    - "Touching intervals merge if the problem says closed intervals, clarify the boundary"
+    - "Streaming needs an interval tree or sorted structure"
+- id: dsa-004
+  category: dsa-coding
+  skills: [dsa, python]
+  difficulty: 2
+  prompt: "Given a string, return the length of the longest substring without repeating characters."
+  followups:
+    - "Why is a sliding window correct here?"
+    - "How do you move the left pointer when a repeat is found?"
+    - "Extend it to at most k distinct characters."
+  good_answer:
+    - "Sliding window with a map from character to last index"
+    - "On repeat, jump left past the previous occurrence"
+    - "Track max window length each step"
+    - "O(n) time, O(alphabet) space"
+    - "Window never needs to shrink one step at a time, jump is safe"
+    - "k-distinct variant shrinks left while distinct count exceeds k"
+- id: dsa-005
+  category: dsa-coding
+  skills: [dsa, python]
+  difficulty: 2
+  prompt: "Given the head of a singly linked list, return the list reversed, in place."
+  followups:
+    - "Walk me through the three-pointer technique."
+    - "What is the recursive version's space cost?"
+    - "How would you reverse only the middle third?"
+  good_answer:
+    - "Iterate with prev, curr, next, rewire curr's pointer to prev"
+    - "O(n) time, O(1) space"
+    - "Recursion uses O(n) stack but is elegant"
+    - "Edge cases, empty list and single node"
+    - "Partial reversal, find midpoint with slow-fast pointers then splice"
+    - "Verify by walking the result, pointer bugs hide in the rewire order"
+- id: dsa-006
+  category: dsa-coding
+  skills: [dsa, python]
+  difficulty: 2
+  prompt: "Given an array of daily stock prices, return the maximum profit from one buy followed by one later sell. Return zero if no profit is possible."
+  followups:
+    - "What two variables does the one-pass solution track?"
+    - "Now allow as many transactions as you like, how does it change?"
+    - "Why is the single-transaction problem not just max minus min?"
+  good_answer:
+    - "Track running minimum price and best profit seen"
+    - "For each price, update profit against the min so far"
+    - "O(n) time, O(1) space"
+    - "Order matters, sell must come after buy, so min is prefix-only"
+    - "Unlimited transactions sum all positive consecutive differences"
+    - "Kadane's algorithm is the same shape on differences"
+- id: dsa-007
+  category: dsa-coding
+  skills: [dsa, python]
+  difficulty: 2
+  prompt: "Given an n by n matrix representing an image, rotate it 90 degrees clockwise in place."
+  followups:
+    - "What two geometric operations compose a 90 degree rotation?"
+    - "Why must the transpose loop only visit the upper triangle?"
+    - "How would you do it out of place, and why is in place better here?"
+  good_answer:
+    - "Transpose then reverse each row gives clockwise rotation"
+    - "Transpose swaps only i,j with j,i for i less than j to avoid undoing swaps"
+    - "O(n squared) time, O(1) space"
+    - "Out of place is simpler but allocates another matrix"
+    - "Ring-by-ring four-way rotation is the direct alternative"
+    - "Test on odd and even sizes, center element is a trap"
+- id: dsa-008
+  category: dsa-coding
+  skills: [dsa, python]
+  difficulty: 2
+  prompt: "Given a binary tree, return the values level by level, as a list of lists, one per level."
+  followups:
+    - "Which traversal gives levels naturally?"
+    - "How do you mark level boundaries in the queue?"
+    - "Return only the right side view instead, how does that change?"
+  good_answer:
+    - "BFS with a queue, process the queue snapshot of current size per level"
+    - "O(n) time and space"
+    - "Level-order falls out of processing fixed-size chunks per iteration"
+    - "Right side view, take the last node of each level, or DFS right-first"
+    - "DFS with depth index also works, appending per depth"
+    - "Empty tree returns an empty list"
+- id: dsa-009
+  category: dsa-coding
+  skills: [dsa, python]
+  difficulty: 3
+  prompt: "Given a list of words, group anagrams together. Words are anagrams if they use the same letters with the same counts."
+  followups:
+    - "What canonical key makes grouping a single hash pass?"
+    - "Compare sorting keys versus counting keys on cost."
+    - "How would you do it if words were extremely long?"
+  good_answer:
+    - "Hash map from canonical form to list of words"
+    - "Sorted characters or a 26-count tuple both work as keys"
+    - "Sorting key costs L log L per word, counting key costs L"
+    - "O(total characters times log L) or O(total characters) with counts"
+    - "Count tuple wins for very long words"
+    - "Order of groups does not matter unless specified"
+- id: dsa-010
+  category: dsa-coding
+  skills: [dsa, python]
+  difficulty: 3
+  prompt: "Given a stream of numbers, design a structure that supports adding a number and returning the median so far, in logarithmic time per add."
+  followups:
+    - "Why do two heaps work?"
+    - "How do you keep the two heaps balanced?"
+    - "What breaks if you need to remove an arbitrary element?"
+  good_answer:
+    - "Max-heap for the lower half, min-heap for the upper half"
+    - "Median comes from the tops, sizes differ by at most one"
+    - "Push then rebalance by moving a top between heaps"
+    - "O(log n) add, O(1) median"
+    - "Python has no max-heap, negate values"
+    - "Lazy deletion handles arbitrary removal, dual-heap with tombstones"
+- id: dsa-011
+  category: dsa-coding
+  skills: [dsa, python]
+  difficulty: 3
+  prompt: "Given an undirected graph as an adjacency list, determine whether it contains a cycle, and if you like, return one."
+  followups:
+    - "Why must DFS track the parent node?"
+    - "How does BFS or union-find compare?"
+    - "What changes for a directed graph?"
+  good_answer:
+    - "DFS with visited set, a back edge to a non-parent visited node means a cycle"
+    - "Disconnected graphs need a DFS from every unvisited node"
+    - "O(V plus E) time and space"
+    - "Union-find detects the cycle when an edge joins an already-connected pair"
+    - "Directed cycles need coloring, white gray black, or Kahn topological sort"
+    - "Parent tracking prevents the trivial edge back to where you came from"
+- id: dsa-012
+  category: dsa-coding
+  skills: [dsa, python]
+  difficulty: 3
+  prompt: "Given an array of integers, return the length of the longest strictly increasing subsequence. Aim better than quadratic if you can."
+  followups:
+    - "What is the O(n squared) DP?"
+    - "What invariant does the tails array maintain in the n log n solution?"
+    - "Does the tails array equal an actual subsequence?"
+  good_answer:
+    - "DP, best ending at i is one plus best over smaller earlier values, O(n squared)"
+    - "Patience style, tails array holds the smallest tail for each length"
+    - "Binary search the insertion point per element, O(n log n)"
+    - "Replace at the lower bound, append if larger than all"
+    - "Tails is not itself a valid subsequence, only its length is guaranteed"
+    - "Reconstructing the actual sequence needs parent pointers"

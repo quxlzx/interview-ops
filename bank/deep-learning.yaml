@@ -1,0 +1,240 @@
+- id: dl-001
+  category: deep-learning
+  skills: [deep-learning, pytorch]
+  difficulty: 1
+  prompt: "Explain backpropagation intuitively. What is actually being computed and propagated?"
+  followups:
+    - "What is the chain rule doing at each layer?"
+    - "Why do we compute gradients of the loss with respect to weights, not activations?"
+    - "What is the difference between forward and backward passes computationally?"
+  good_answer:
+    - "Forward pass computes activations layer by layer"
+    - "Backward pass computes gradients of the loss with respect to every weight via the chain rule"
+    - "Each layer multiplies the incoming gradient by its local Jacobian"
+    - "Gradients flow backward so each layer gets a credit-assignment signal"
+    - "Gradients w.r.t. weights are what gradient descent consumes directly"
+    - "Autograd in PyTorch builds a tape of the forward graph and replays it backward"
+- id: dl-002
+  category: deep-learning
+  skills: [deep-learning, pytorch]
+  difficulty: 2
+  prompt: "What causes vanishing and exploding gradients in deep networks, and what techniques fix each?"
+  followups:
+    - "Why does ReLU help versus sigmoid?"
+    - "What do residual connections do for gradient flow?"
+    - "How do you detect exploding gradients in practice?"
+  good_answer:
+    - "Gradients are products of per-layer Jacobians, deep stacks shrink or blow them up"
+    - "Saturating activations like sigmoid multiply by small derivatives each layer"
+    - "ReLU keeps derivative at 1 in the active region, mitigating vanishing"
+    - "Residual connections give gradients an identity highway through layers"
+    - "Proper initialization like He or Xavier keeps activation scale stable"
+    - "Exploding shows as loss spikes or NaN, fixed by gradient clipping and lower LR"
+- id: dl-003
+  category: deep-learning
+  skills: [deep-learning, pytorch]
+  difficulty: 2
+  prompt: "Compare batch normalization and layer normalization. Which would you use in a transformer and why?"
+  followups:
+    - "What statistics does each normalize over?"
+    - "What changes at inference time for batch norm?"
+    - "What is RMSNorm and why do modern LLMs use it?"
+  good_answer:
+    - "Batch norm normalizes across the batch per feature, layer norm across features per sample"
+    - "Batch norm needs batch statistics and running estimates at inference"
+    - "Layer norm is batch-size independent, works for sequences and small batches"
+    - "Transformers use layer norm because sequences and autoregressive inference break batch statistics"
+    - "RMSNorm drops the mean-centering step, cheaper and nearly as good"
+    - "Pre-norm versus post-norm placement changes trainability of deep stacks"
+- id: dl-004
+  category: deep-learning
+  skills: [deep-learning, pytorch]
+  difficulty: 1
+  prompt: "What does dropout do, and what must you remember when you move a model from training to evaluation?"
+  followups:
+    - "Why do we scale activations during training or inference?"
+    - "What happens if you forget model.eval() in PyTorch?"
+    - "Name another stochastic regularization layer with the same trap."
+  good_answer:
+    - "Dropout randomly zeroes units during training, forcing redundancy across paths"
+    - "It approximates an ensemble of thinned networks"
+    - "At eval, keep all units and match expected activation scale"
+    - "model.eval() disables dropout and batch norm training behavior"
+    - "Forgetting it makes eval loss and predictions noisy and wrong"
+    - "Batch norm also behaves differently in eval, using running statistics"
+- id: dl-005
+  category: deep-learning
+  skills: [deep-learning, cv]
+  difficulty: 2
+  prompt: "What inductive biases do convolutions give a vision model, and why have vision transformers become competitive despite lacking them?"
+  followups:
+    - "What is translation equivariance and does it always help?"
+    - "What data or tricks let ViT catch up on ImageNet?"
+    - "Where do CNNs still win?"
+  good_answer:
+    - "Convolutions assume locality and translation equivariance, weight sharing cuts parameters"
+    - "ViT has no locality prior, attention is permutation equivariant over patches"
+    - "ViT needs large datasets or strong augmentation to learn its own priors"
+    - "Distillation, data augmentation, and hybrid designs close the small-data gap"
+    - "CNNs still win on small data, edge deployment, and dense prediction tasks"
+    - "Global attention gives ViT long-range context convolutions need depth for"
+- id: dl-006
+  category: deep-learning
+  skills: [deep-learning, pytorch]
+  difficulty: 2
+  prompt: "Compare SGD with momentum and Adam. When would you deliberately choose plain SGD?"
+  followups:
+    - "What do Adam's first and second moments track?"
+    - "Why is weight decay not the same as L2 in Adam, and what is AdamW?"
+    - "What is the typical learning-rate relationship between the two?"
+  good_answer:
+    - "SGD uses the current gradient, momentum accumulates a velocity buffer"
+    - "Adam adapts per-parameter step sizes using first and second moment estimates"
+    - "Adam tolerates bad scaling and sparse gradients, often larger LR"
+    - "SGD with momentum and schedules often generalizes better on vision training"
+    - "In Adam, L2 penalty and decoupled weight decay differ, AdamW fixes the interaction"
+    - "Choice depends on modality, transformer work usually picks AdamW"
+- id: dl-007
+  category: deep-learning
+  skills: [deep-learning, pytorch]
+  difficulty: 2
+  prompt: "Why do large transformer training runs use learning rate warmup followed by decay?"
+  followups:
+    - "What goes wrong if you start at the full learning rate?"
+    - "Compare cosine decay and inverse square root schedules."
+    - "How does batch size change the optimal learning rate?"
+  good_answer:
+    - "Early steps have noisy gradients and unstable second-moment estimates in Adam"
+    - "Warmup ramps LR up so updates stabilize before full steps"
+    - "Decay anneals toward the loss basin, reducing late-training oscillation"
+    - "Cosine smoothly decays, inverse sqrt suits long runs with large batches"
+    - "Linear scaling rule, double batch size roughly doubles LR"
+    - "Warmup length is usually a small fraction of total steps"
+- id: dl-008
+  category: deep-learning
+  skills: [deep-learning, llm-finetuning]
+  difficulty: 2
+  prompt: "You want to adapt a pretrained model to a small domain dataset. Walk me through your fine-tuning strategy options."
+  followups:
+    - "When do you freeze layers and which ones?"
+    - "How do you prevent catastrophic forgetting?"
+    - "What learning rate do you use versus pretraining?"
+  good_answer:
+    - "Options are linear probe, partial fine-tune, full fine-tune, or adapters like LoRA"
+    - "Freeze early layers when data is small and domain is close, unfreeze more as data grows"
+    - "Use much smaller LR than pretraining, often 1e-5 to 1e-4"
+    - "Mix in general data or use LoRA to limit drift and forgetting"
+    - "Early stopping on a domain validation set guards against overfitting"
+    - "Discriminative LRs, larger for head, smaller for backbone"
+- id: dl-009
+  category: deep-learning
+  skills: [deep-learning, pytorch]
+  difficulty: 1
+  prompt: "Why is cross-entropy the standard loss for classification, and why is it paired with softmax?"
+  followups:
+    - "What does cross-entropy measure in information-theoretic terms?"
+    - "Why does softmax plus cross-entropy give a clean gradient?"
+    - "When would you use binary cross-entropy instead?"
+  good_answer:
+    - "Cross-entropy is KL divergence up to a constant, it pushes predicted distribution toward the label"
+    - "Softmax turns logits into a normalized probability distribution"
+    - "Their composition makes the gradient simply predicted minus one-hot target"
+    - "It heavily penalizes confident wrong predictions, unlike MSE"
+    - "BCE is the two-class special case, sigmoid plus log loss"
+    - "Label smoothing regularizes by softening the one-hot target"
+- id: dl-010
+  category: deep-learning
+  skills: [deep-learning, pytorch, gpu-hardware]
+  difficulty: 2
+  prompt: "Your model does not fit the batch size you want on one GPU. What is gradient accumulation and what are its limits?"
+  followups:
+    - "Is gradient accumulation exactly equivalent to a larger batch?"
+    - "How do batch norm statistics complicate that equivalence?"
+    - "What other memory levers exist besides accumulation?"
+  good_answer:
+    - "Accumulate gradients over several micro-batches, then step once"
+    - "It emulates a larger effective batch within the same memory"
+    - "Not identical when batch norm statistics or dropout noise differ per micro-batch"
+    - "Scales LR when growing the effective batch"
+    - "Alternatives are mixed precision, gradient checkpointing, sharded optimizers"
+    - "It trades wall-clock time, more forward backward passes per step"
+- id: dl-011
+  category: deep-learning
+  skills: [deep-learning, pytorch, gpu-hardware]
+  difficulty: 2
+  prompt: "Explain mixed precision training. What components stay in fp32 and what can go wrong?"
+  followups:
+    - "What is loss scaling and why is it needed with fp16?"
+    - "What does bf16 change compared to fp16?"
+    - "Which operations are commonly kept in higher precision?"
+  good_answer:
+    - "Matmuls run in fp16 or bf16 for speed and memory, tensor cores accelerate them"
+    - "Master weights, optimizer states, and reductions often stay fp32"
+    - "fp16 has narrow range, small gradients underflow, loss scaling shifts the loss up"
+    - "bf16 keeps fp32 exponent range, usually no loss scaling needed"
+    - "Loss and gradient norms are accumulated in fp32 to avoid drift"
+    - "Watch for NaN or inf, dynamic loss scaling recovers from overflow"
+- id: dl-012
+  category: deep-learning
+  skills: [deep-learning, pytorch]
+  difficulty: 1
+  prompt: "Your deep network memorizes the training set but validation accuracy stalls. What are your first three moves?"
+  followups:
+    - "Why does early stopping work so well in practice?"
+    - "Name two augmentations for images and two for text."
+    - "Does more regularization always help?"
+  good_answer:
+    - "Add data or augmentation first, capacity is rarely the real shortage"
+    - "Early stopping on validation loss is the cheapest regularizer"
+    - "Add dropout, weight decay, or reduce model size"
+    - "Check for label noise and leakage that stall generalization"
+    - "Curriculum or mixup style augmentation improves the effective dataset"
+    - "Too much regularization underfits, tune on validation not training"
+- id: dl-013
+  category: deep-learning
+  skills: [deep-learning, nlp]
+  difficulty: 2
+  prompt: "What is an embedding layer, and why do dense learned representations beat one-hot encodings for language?"
+  followups:
+    - "How do embeddings get trained inside a larger model?"
+    - "What does similarity in embedding space mean geometrically?"
+    - "When do pretrained embeddings matter versus training your own?"
+  good_answer:
+    - "An embedding is a lookup matrix mapping discrete IDs to dense vectors"
+    - "One-hot gives no notion of similarity and explodes dimensionality"
+    - "Gradients update embedding rows through the same backprop as weights"
+    - "Similar meanings land close by cosine or dot product"
+    - "Pretrained embeddings transfer when your corpus is small"
+    - "Embedding dimension trades expressiveness against parameters and overfitting"
+- id: dl-014
+  category: deep-learning
+  skills: [deep-learning, nlp, llm-finetuning]
+  difficulty: 2
+  prompt: "Contrast masked language modeling with causal next-token prediction as pretraining objectives. What does each buy you?"
+  followups:
+    - "Why are decoder-only models dominant now?"
+    - "What is the inference cost difference between encoder and decoder models?"
+    - "What are contrastive or autoregressive alternatives for non-text modalities?"
+  good_answer:
+    - "MLM hides random tokens and predicts both directions, strong for representations"
+    - "Causal LM predicts the next token only, directly trainable for generation"
+    - "Causal LM scales cleanly with data and unifies tasks as text-to-text"
+    - "Encoders are cheaper per token and bidirectional, good for retrieval and classification"
+    - "Decoders prompt into any task without task-specific heads"
+    - "The objective shapes architecture, attention masking follows the objective"
+- id: dl-015
+  category: deep-learning
+  skills: [deep-learning, pytorch, gpu-hardware]
+  difficulty: 3
+  prompt: "What is gradient checkpointing and why does it let you train bigger models on the same GPU?"
+  followups:
+    - "What exactly is recomputed during the backward pass?"
+    - "Roughly how much time does it cost and how much memory does it save?"
+    - "How does it interact with mixed precision and activation offloading?"
+  good_answer:
+    - "Training stores activations for backward, activation memory scales with depth and batch"
+    - "Checkpointing keeps only sparse activations and recomputes segments during backward"
+    - "Saves most activation memory at roughly one extra forward pass cost"
+    - "Enables larger batch, longer sequence, or deeper model on fixed VRAM"
+    - "Recomputed segments can run in lower precision, memory savings compound"
+    - "Offloading activations to CPU RAM is the slower-but-bigger sibling"

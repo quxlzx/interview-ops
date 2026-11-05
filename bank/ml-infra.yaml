@@ -1,0 +1,240 @@
+- id: infra-001
+  category: ml-infra
+  skills: [gpu-hardware, pytorch, ml-systems]
+  difficulty: 2
+  prompt: "Break down where GPU memory goes during training of a transformer. Which buckets dominate and how do you shrink each?"
+  followups:
+    - "How much memory do Adam optimizer states take relative to fp16 weights?"
+    - "What drives activation memory?"
+    - "Which lever do you pull first when you hit OOM?"
+  good_answer:
+    - "Buckets are weights, gradients, optimizer states, activations, and fragmentation"
+    - "Adam keeps fp32 master weights plus two moments, roughly 12 bytes per parameter"
+    - "Activations scale with batch, sequence length, and depth"
+    - "Mixed precision, gradient checkpointing, and sharded optimizers attack each bucket"
+    - "Gradient accumulation shrinks micro-batch activation cost"
+    - "Profile with torch memory summary before guessing which bucket blew up"
+- id: infra-002
+  category: ml-infra
+  skills: [ml-systems, gpu-hardware]
+  difficulty: 2
+  prompt: "Compare data parallelism, tensor parallelism, and pipeline parallelism. When do you need each?"
+  followups:
+    - "What communication pattern does each rely on?"
+    - "Why does tensor parallelism want NVLink and pipeline parallelism tolerate slower links?"
+    - "What is 3D parallelism?"
+  good_answer:
+    - "Data parallel replicates the model and splits the batch"
+    - "Tensor parallel splits individual weight matrices across GPUs within a layer"
+    - "Pipeline parallel assigns whole layers to stages, micro-batches flow through"
+    - "DP needs allreduce of gradients, TP needs heavy per-layer allreduce, PP needs point-to-point"
+    - "TP is latency sensitive so it stays inside a node, PP crosses nodes more cheaply"
+    - "Big runs combine all three, sharding the optimizer across the DP group"
+- id: infra-003
+  category: ml-infra
+  skills: [ml-systems, gpu-hardware]
+  difficulty: 3
+  prompt: "What problem does ZeRO or FSDP solve that plain data parallelism does not?"
+  followups:
+    - "What are the ZeRO stages and what does each shard?"
+    - "What is the communication cost of sharding?"
+    - "How does activation checkpointing combine with ZeRO?"
+  good_answer:
+    - "Plain DP replicates weights, gradients, and optimizer states per GPU, wasting memory"
+    - "ZeRO shards optimizer states, then gradients, then parameters across DP ranks"
+    - "Memory per GPU drops roughly linearly with world size"
+    - "Extra gather and reduce communication replaces replication, often still network bound"
+    - "Stage 3 gathers parameters on demand per layer, overlapping with compute"
+    - "FSDP is PyTorch's implementation, pairs naturally with checkpointing for huge models"
+- id: infra-004
+  category: ml-infra
+  skills: [llm-serving, ml-systems]
+  difficulty: 3
+  prompt: "For an LLM serving system, explain continuous batching and why it beats static batching on throughput."
+  followups:
+    - "Why do request lengths make static batching wasteful?"
+    - "What does PagedAttention contribute?"
+    - "How do you trade latency SLOs against throughput?"
+  good_answer:
+    - "Static batching waits for the whole batch to finish, short requests idle behind long ones"
+    - "Continuous batching admits new requests into the running batch every step"
+    - "GPU stays saturated, throughput rises several times on varied lengths"
+    - "PagedAttention stores KV cache in blocks like virtual memory, cutting fragmentation"
+    - "Chunked prefill mixes prefill and decode work to smooth latency"
+    - "Measure p50 and p99 time-per-output-token, not just average throughput"
+- id: infra-005
+  category: ml-infra
+  skills: [ml-systems, python]
+  difficulty: 2
+  prompt: "You need to deploy a trained model on a CPU-only device. Walk me through ONNX export and what optimizations it enables."
+  followups:
+    - "What breaks during torch.onnx.export and how do you debug it?"
+    - "What are graph-level optimizations versus kernel-level ones?"
+    - "How do you verify the exported model matches the original?"
+  good_answer:
+    - "Export traces the model into a framework-neutral graph of operators"
+    - "Dynamic axes handle variable sequence or batch sizes"
+    - "ONNX Runtime applies op fusion, layout changes, and constant folding"
+    - "Quantization on the ONNX graph gives big CPU speedups"
+    - "Unsupported custom ops need custom kernels or graph surgery"
+    - "Verify with max absolute output difference against PyTorch on sample inputs"
+- id: infra-006
+  category: ml-infra
+  skills: [ml-systems, llm-serving]
+  difficulty: 2
+  prompt: "Compare post-training quantization approaches for deployment: dynamic, static, and weight-only. What is the calibration set for?"
+  followups:
+    - "Why do activations need scales computed from data but weights do not?"
+    - "What accuracy checks do you run after quantizing?"
+    - "When does quantization make things slower?"
+  good_answer:
+    - "Weight-only quant shrinks memory and helps bandwidth-bound inference"
+    - "Dynamic quant computes activation scales on the fly, no calibration needed"
+    - "Static quant precomputes activation ranges from a representative calibration set"
+    - "Calibration must match production input distribution or outliers skew scales"
+    - "Check task metrics end to end, perplexity or accuracy, not just tensor error"
+    - "Compute-bound fp32 workloads on some CPUs can regress with poor quant kernels"
+- id: infra-007
+  category: ml-infra
+  skills: [software-engineering, ml-evals]
+  difficulty: 2
+  prompt: "How do you set up CI for a machine learning codebase where tests run on GPUs and models are stochastic?"
+  followups:
+    - "How do you keep flaky GPU tests from blocking merges?"
+    - "What are golden values and when do they rot?"
+    - "How do you test a change that only shows up after 1000 training steps?"
+  good_answer:
+    - "Tiered tests, fast CPU unit tests on every push, GPU smoke tests on main"
+    - "Golden-value tests pin outputs with fixed seeds and tolerances"
+    - "Determinism flags plus fixed seeds reduce flakiness, tolerate small numeric drift"
+    - "Nightly short-training regression suite with metric thresholds"
+    - "Cache checkpoints and datasets to keep CI fast and hermetic"
+    - "Track per-case pass history so regressions are attributable to commits"
+- id: infra-008
+  category: ml-infra
+  skills: [gpu-hardware, pytorch, ml-systems]
+  difficulty: 2
+  prompt: "Your training step is slower than expected. How do you profile and find the bottleneck?"
+  followups:
+    - "How do you tell a data-loading bottleneck from a compute bottleneck?"
+    - "What does low GPU utilization with high GPU memory usage suggest?"
+    - "Name two common silent killers of training speed."
+  good_answer:
+    - "Use torch profiler or Nsight to split step time into dataloader, compute, comms"
+    - "GPU idle gaps mean input pipeline starvation, fix with workers and prefetch"
+    - "Small kernels and CPU launch overhead mean kernel-bound, try larger batches or fusion"
+    - "Check dtype and tensor-core usage, fp32 matmuls waste modern GPUs"
+    - "CPU-GPU sync points like item() or logging stall the pipeline"
+    - "Fragmentation or checkpoint I/O can dominate step time silently"
+- id: infra-009
+  category: ml-infra
+  skills: [gpu-hardware, cs-fundamentals]
+  difficulty: 2
+  prompt: "Explain at a practical level what happens when PyTorch runs an operation on CUDA. Why are CPU-GPU transfers and synchronization expensive?"
+  followups:
+    - "What is kernel launch overhead and when does it dominate?"
+    - "Why does calling .item() in a training loop hurt?"
+    - "What do streams give you?"
+  good_answer:
+    - "Ops compile to kernels launched asynchronously on the GPU"
+    - "Tensors live in device memory, transfers cross a slow PCIe hop relative to HBM"
+    - "Synchronization forces the CPU to wait for queued GPU work, killing pipelining"
+    - "Tiny kernels pay launch overhead repeatedly, fusion or CUDA graphs help"
+    - "Streams overlap transfers and compute when dependencies allow"
+    - "Pinned memory and prefetching hide transfer latency"
+- id: infra-010
+  category: ml-infra
+  skills: [llm-serving, gpu-hardware, embedded]
+  difficulty: 2
+  prompt: "You must run local LLM inference on heterogeneous consumer hardware, from discrete GPUs to low-power mini PCs. How do you decide what runs where and which model tier to pick?"
+  followups:
+    - "How would you benchmark a machine to make that decision automatically?"
+    - "What fails when you offload layers to system RAM?"
+    - "How do you keep behavior consistent across tiers?"
+  good_answer:
+    - "Probe hardware, VRAM, RAM, cores, then micro-benchmark tokens per second per candidate"
+    - "Pick the largest quantized model that meets a latency floor on that host"
+    - "GPU-resident weights beat heavy CPU offload, layer spill degrades superlinearly"
+    - "Vulkan backends cover AMD and Intel GPUs where CUDA does not exist"
+    - "Pin sampling and routing so tier differences do not change agent behavior unpredictably"
+    - "Regression-test the selection logic across machine classes, not just one box"
+- id: infra-011
+  category: ml-infra
+  skills: [ml-systems, cloud-infra]
+  difficulty: 2
+  prompt: "A multi-day training run dies at 3am. What infrastructure makes that survivable?"
+  followups:
+    - "What goes into a checkpoint beyond model weights?"
+    - "How do you checkpoint without stalling training every time?"
+    - "How do you detect a dying job before it crashes?"
+  good_answer:
+    - "Periodic checkpoints to durable storage with automatic restart on failure"
+    - "Checkpoint weights, optimizer state, RNG state, dataloader position, and step"
+    - "Async or sharded checkpointing avoids multi-minute write stalls"
+    - "Keep a few recent checkpoints plus one permanent, test restores regularly"
+    - "Watch loss spikes, NaN, GPU ECC errors, and heartbeat timeouts"
+    - "Preemption-aware design with elastic restart matters on spot clusters"
+- id: infra-012
+  category: ml-infra
+  skills: [ml-systems, sql, data-analysis]
+  difficulty: 2
+  prompt: "Walk me through getting training data from raw sources to a reproducible training set. What can go wrong?"
+  followups:
+    - "How do you version a dataset?"
+    - "What is training-serving skew and where does it come from?"
+    - "How do you handle schema changes upstream?"
+  good_answer:
+    - "Pipeline is ingest, validate, transform, split, snapshot, and document lineage"
+    - "Dataset versioning by snapshot hash or DVC-style content addressing"
+    - "Schema validation at ingest catches upstream drift early"
+    - "Splits must be stable and leak-free, keyed by entity or time"
+    - "Training-serving skew arises when online features use different transforms than offline"
+    - "Shared feature definitions or a feature store keep both paths consistent"
+- id: infra-013
+  category: ml-infra
+  skills: [llm-serving, ml-systems]
+  difficulty: 3
+  prompt: "Design the serving stack for a chat product: from API request to streamed tokens. What components and failure handling matter?"
+  followups:
+    - "How do you handle a GPU node dying mid-generation?"
+    - "Where do you put caching and how do you keep it correct?"
+    - "How do you protect against a traffic spike?"
+  good_answer:
+    - "Gateway handles auth and rate limits, router picks a replica, engine streams tokens"
+    - "Streaming needs backpressure and client disconnect handling"
+    - "Mid-generation failure means retry or graceful degradation, generation is not idempotent"
+    - "Prefix caching reuses KV for shared system prompts, must invalidate on model change"
+    - "Autoscale on queue depth and KV pressure, shed load with clear errors"
+    - "Log tokens per second, TTFT, and error rates per replica for routing decisions"
+- id: infra-014
+  category: ml-infra
+  skills: [cloud-infra, ml-systems]
+  difficulty: 2
+  prompt: "Your model API has spiky traffic and GPUs are expensive. How do you cut serving cost without wrecking latency?"
+  followups:
+    - "What makes GPU autoscaling slower than CPU autoscaling?"
+    - "When do spot or preemptible instances make sense for inference?"
+    - "How does model tiering or routing by request difficulty help?"
+  good_answer:
+    - "Right-size the model, route easy requests to smaller or quantized tiers"
+    - "Batching and KV reuse raise utilization before buying more hardware"
+    - "GPU scale-up is slow due to model load, keep warm pools or snapshot restore"
+    - "Spot instances fit stateless or retriable inference with graceful eviction"
+    - "Cache frequent responses and prefix-cache shared prompts"
+    - "Set SLOs per tier, measure cost per thousand requests not cluster utilization"
+- id: infra-015
+  category: ml-infra
+  skills: [ml-systems, software-engineering]
+  difficulty: 2
+  prompt: "A teammate cannot reproduce your experiment result. What makes ML experiments reproducible, and what usually breaks it?"
+  followups:
+    - "Name sources of nondeterminism in GPU training."
+    - "What should an experiment record contain?"
+    - "Is bit-exact reproducibility always the right goal?"
+  good_answer:
+    - "Pin code commit, config, seeds, dataset version, container, and driver stack"
+    - "GPU nondeterminism comes from atomics, nondeterministic kernels, and async reductions"
+    - "deterministic algorithms and fixed seeds help but cost speed"
+    - "Log full config and hyperparameters with metrics, not just the final number"
+    - "Report variance across seeds, single-run deltas are often noise"
+    - "Statistical reproducibility across seeds usually beats chasing bit-exactness"

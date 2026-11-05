@@ -1,0 +1,192 @@
+- id: beh-001
+  category: behavioral-project
+  skills: [project-story, software-engineering]
+  difficulty: 2
+  prompt: "Tell me about a project you built end to end. What was the hardest technical decision in it?"
+  followups:
+    - "What alternatives did you consider for that decision?"
+    - "What would you change if you rebuilt it today?"
+    - "How did you know the decision was right?"
+  good_answer:
+    - "Names the project and its purpose in two sentences"
+    - "Picks one real decision with genuine alternatives, like model tier selection or hardware targets"
+    - "Explains the constraint that forced the choice, RAM, latency, or portability"
+    - "Cites evidence, benchmarks or regression results, not vibes"
+    - "Admits a tradeoff that still hurts today"
+    - "Quantifies scope, components, or test coverage honestly"
+- id: beh-002
+  category: behavioral-project
+  skills: [project-story, ml-systems]
+  difficulty: 2
+  prompt: "Describe a time a system you built failed in a way it never failed in testing. How did you debug it?"
+  followups:
+    - "What was your first hypothesis and how did you kill or confirm it?"
+    - "How did you reproduce the failure?"
+    - "What did you change in your testing after that?"
+  good_answer:
+    - "Sets up the system and the surprise failure concretely"
+    - "Describes hypothesis-driven debugging, instrument, measure, eliminate"
+    - "Found the root cause, a hardware or environment difference testing missed"
+    - "Added a regression case or benchmark so it cannot recur silently"
+    - "Reflects that the test matrix was the real bug"
+    - "No blame, focus on what the process lacked"
+- id: beh-003
+  category: behavioral-project
+  skills: [project-story, gpu-hardware]
+  difficulty: 3
+  prompt: "Tell me about a time you had to make a technical tradeoff between quality and resource constraints. What did you give up?"
+  followups:
+    - "How did you measure what quality you lost?"
+    - "Did anyone disagree with your choice?"
+    - "Would you make the same call again?"
+  good_answer:
+    - "Frames the constraint honestly, small hardware budget or memory ceiling"
+    - "Chose quantized or smaller model tiers over full-quality larger ones"
+    - "Built a probe or benchmark to pick the best option under the cap"
+    - "Measured the loss, perplexity, task accuracy, or latency numbers"
+    - "Made the tradeoff explicit and reversible where possible"
+    - "Explains why the constraint was actually a feature, portability"
+- id: beh-004
+  category: behavioral-project
+  skills: [project-story, python]
+  difficulty: 2
+  prompt: "Tell me about a time you automated something repetitive. What did the before and after look like?"
+  followups:
+    - "How did you decide what was worth automating?"
+    - "What broke when the automation ran for real?"
+    - "How did you validate the automation was correct?"
+  good_answer:
+    - "Identifies the manual pain and why it was error-prone"
+    - "Built a scripted workflow or agent pipeline to replace it"
+    - "Grew it incrementally, more agents or steps as trust built"
+    - "Kept a human review gate on risky outputs"
+    - "Measured the win, time saved or cases covered"
+    - "Mentions failure handling the manual process used to absorb"
+- id: beh-005
+  category: behavioral-project
+  skills: [project-story, software-engineering]
+  difficulty: 2
+  prompt: "Describe a time you had to cut scope to hit a deadline. What did you drop and how did you choose?"
+  followups:
+    - "What did you protect and why?"
+    - "How did you communicate the cut?"
+    - "Did the cut come back to bite you later?"
+  good_answer:
+    - "Names the deadline and the original scope honestly"
+    - "Cut by value, kept the core demo or test path, dropped polish"
+    - "Used a criterion, risk, dependency, or user impact, not panic"
+    - "Told stakeholders early what moved and what stayed"
+    - "Scheduled or logged the debt afterward"
+    - "Reflects on whether the triage call was right"
+- id: beh-006
+  category: behavioral-project
+  skills: [project-story, ml-evals]
+  difficulty: 3
+  prompt: "Tell me about a time your tests said everything worked but you knew something was wrong. What did you do?"
+  followups:
+    - "How did you find the gap in the test suite?"
+    - "How do you decide what a passing test suite is actually worth?"
+    - "What did you add to the suite afterward?"
+  good_answer:
+    - "Trusts the intuition and investigates instead of shipping"
+    - "Audits what the suite does not cover, edge hardware, real inputs, timing"
+    - "Builds a targeted probe or replay to expose the real behavior"
+    - "Finds the untested dimension, like a driver or backend difference"
+    - "Extends the suite with the missing class of cases"
+    - "Talks about coverage of failure modes, not just line coverage"
+- id: beh-007
+  category: behavioral-project
+  skills: [project-story, python]
+  difficulty: 2
+  prompt: "Explain a complex technical system you built to someone with no technical background. Pick something real."
+  followups:
+    - "What analogy did you use and where does it break down?"
+    - "How did you know they understood?"
+    - "How do you decide how much detail to give?"
+  good_answer:
+    - "Picks a real system and explains the what before the how"
+    - "Uses an everyday analogy and flags its limits"
+    - "Avoids jargon, or defines it the moment it appears"
+    - "Checks understanding with a question, not a monologue"
+    - "Scales depth on demand, one layer at a time"
+    - "Connects it to something the listener already cares about"
+- id: beh-008
+  category: behavioral-project
+  skills: [project-story, software-engineering]
+  difficulty: 2
+  prompt: "Tell me about a time you disagreed with a technical decision made by someone else. How did you handle it?"
+  followups:
+    - "What was your actual argument?"
+    - "How did you feel once the decision went against you?"
+    - "What would you do differently?"
+  good_answer:
+    - "States the disagreement concretely, not a humblebrag"
+    - "Argued with evidence or a prototype, not authority"
+    - "Listened to the other side's constraints genuinely"
+    - "Committed fully to the team decision even if it lost"
+    - "Kept the relationship intact"
+    - "Later outcome mentioned honestly, win, loss, or mixed"
+- id: beh-009
+  category: behavioral-project
+  skills: [project-story, llm-finetuning]
+  difficulty: 3
+  prompt: "Tell me about the hardest bug you have ever chased. How long did it take and what made it hard?"
+  followups:
+    - "What was the moment you cracked it?"
+    - "How did you keep from thrashing during the long part?"
+    - "What tool or habit saved you?"
+  good_answer:
+    - "Describes a genuinely nasty bug, environment or stack interaction"
+    - "Shows systematic elimination, minimal repro, bisection, or diffing"
+    - "Names the misleading clue that wasted time"
+    - "Root cause is specific, a driver, quantization, or backend difference"
+    - "Fix plus a guard so it stays fixed"
+    - "Honest about time spent and what they would do faster now"
+- id: beh-010
+  category: behavioral-project
+  skills: [project-story, ml-systems]
+  difficulty: 2
+  prompt: "Tell me about a time you learned a new technology on a tight timeline. How did you get productive?"
+  followups:
+    - "How did you choose what to learn first?"
+    - "What did your first attempt get wrong?"
+    - "How do you evaluate documentation or tutorials?"
+  good_answer:
+    - "Names the tech and the deadline, like a new GPU backend or framework"
+    - "Learned by building a small working thing, not passive reading"
+    - "Used docs and source over secondhand summaries"
+    - "First attempt had a specific wrong assumption, corrected fast"
+    - "Reached a working milestone, then deepened"
+    - "Generalizes the learning strategy honestly"
+- id: beh-011
+  category: behavioral-project
+  skills: [project-story, ml-evals]
+  difficulty: 3
+  prompt: "Tell me about a time you built something and the numbers said it worked, but you were not confident. What did you do about the uncertainty?"
+  followups:
+    - "How did you turn a gut feeling into a measurement?"
+    - "What would have changed your mind?"
+    - "How do you report uncertainty to others?"
+  good_answer:
+    - "Recognizes a weak or unrepresentative eval, not just modesty"
+    - "Built a regression suite or held-out cases to harden the claim"
+    - "Reports pass rates with the failure cases, not just the headline"
+    - "Distinguishes what is proven from what is assumed"
+    - "Sets a bar before measuring to avoid motivated reasoning"
+    - "Communicates residual risk plainly"
+- id: beh-012
+  category: behavioral-project
+  skills: [project-story, software-engineering]
+  difficulty: 2
+  prompt: "Why this company and this role? Ground it in something specific you have actually worked on."
+  followups:
+    - "What part of our stack or product maps to your experience?"
+    - "What do you want to be able to say you did by the end of the summer?"
+    - "What would make this internship a bad fit for you?"
+  good_answer:
+    - "Names something concrete about the company, hardware, stack, or product"
+    - "Connects it to real work done, local inference, edge deployment, agent tooling"
+    - "States a specific skill or domain they want to grow"
+    - "Shows they researched beyond the careers page"
+    - "Answers the fit question honestly both directions"
+    - "No generic flattery, every claim traceable to experience"

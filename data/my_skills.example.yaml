@@ -1,0 +1,23 @@
+# Copy to data/my_skills.yaml (gitignored) and rate yourself honestly.
+# level: strong | working | none   (mine.py diffs demand against this)
+python:            {level: strong,  evidence: "your evidence here"}
+pytorch:           {level: working, evidence: "..."}
+deep-learning:     {level: working, evidence: "..."}
+llm-finetuning:    {level: working, evidence: "..."}
+llm-serving:       {level: working, evidence: "..."}
+agents-rag:        {level: working, evidence: "..."}
+cv:                {level: working, evidence: "..."}
+nlp:               {level: working, evidence: "..."}
+recsys:            {level: none,    evidence: "..."}
+data-analysis:     {level: working, evidence: "..."}
+sql:               {level: working, evidence: "..."}
+ml-evals:          {level: working, evidence: "..."}
+ml-systems:        {level: working, evidence: "..."}
+gpu-hardware:      {level: working, evidence: "..."}
+software-engineering: {level: strong, evidence: "..."}
+cs-fundamentals:   {level: working, evidence: "..."}
+dsa:               {level: working, evidence: "..."}
+embedded:          {level: none,    evidence: "..."}
+cloud-infra:       {level: working, evidence: "..."}
+ml-research:       {level: none,    evidence: "..."}
+project-story:     {level: working, evidence: "..."}

@@ -1,0 +1,56 @@
+# Canonical skill vocabulary. Aliases are matched word-boundary-ish against
+# job role+notes+tags(+description when present). Keep aliases lowercase.
+python:
+  aliases: [python]
+pytorch:
+  aliases: [pytorch, torch]
+deep-learning:
+  aliases: [deep learning, machine learning, ml, ai, neural network, neural net,
+            cnn, rnn, transformer, diffusion, reinforcement learning,
+            imitation learning, rl]
+llm-finetuning:
+  aliases: [fine-tun, finetun, lora, rlhf, peft, instruction tun, alignment,
+            post-training, distill]
+llm-serving:
+  aliases: [llm, llm serving, inference, quantiz, gguf, llama.cpp, serving,
+            vllm, kv cache, model deployment, token generation, onnx,
+            generative, genai, chatbot, chatgpt]
+agents-rag:
+  aliases: [agent, rag, retrieval, tool call, tool use, mcp, orchestrat,
+            autonomous, copilot, assistant]
+cv:
+  aliases: [computer vision, image, vision, detection, segmentation, yolo, ocr,
+            multimodal, video]
+nlp:
+  aliases: [nlp, natural language, language model, language, speech, asr,
+            whisper, translation, text mining]
+ml-research:
+  aliases: [research, r&d, publication, phd, papers]
+recsys:
+  aliases: [recommend, ranking, ads, advertis, ctr, search relevance]
+data-analysis:
+  aliases: [data, analytics, data science, statistic, pandas,
+            visualization, a/b, experiment design, business intelligence]
+sql:
+  aliases: [sql, bigquery, database, snowflake, postgres, redshift]
+ml-evals:
+  aliases: [eval, benchmark, validation, metric, accuracy, regression test]
+ml-systems:
+  aliases: [distributed, scaling, mlops, training pipeline, multi-node, cluster,
+            model pipeline, data pipeline]
+gpu-hardware:
+  aliases: [gpu, cuda, vulkan, accelerator, soc, edge device, silicon,
+            hardware acceleration]
+software-engineering:
+  aliases: [software engineer, swe, full stack, fullstack, web, api, frontend,
+            backend, ci/cd, sdk, ui]
+cs-fundamentals:
+  aliases: [operating system, concurrency, network, computer architecture,
+            compiler, memory management]
+dsa:
+  aliases: [algorithm, data structure, leetcode, graph, dynamic programming]
+embedded:
+  aliases: [embedded, firmware, microcontroller, rtos, fpga, asic, hardware design]
+cloud-infra:
+  aliases: [cloud, aws, azure, gcp, docker, kubernetes, k8s, devops, platform,
+            infrastructure, sre, terraform]

@@ -1,0 +1,240 @@
+- id: mlf-001
+  category: ml-fundamentals
+  skills: [data-analysis, python]
+  difficulty: 1
+  prompt: "Walk me through the bias-variance tradeoff. How does model complexity affect each, and how would you diagnose which one you are fighting?"
+  followups:
+    - "Where does regularization sit in that picture?"
+    - "If your training error is low but validation error is high, what do you do first?"
+    - "Can an underfitting model still have high variance?"
+  good_answer:
+    - "Bias is error from wrong assumptions, variance is sensitivity to training set noise"
+    - "Total error decomposes into bias squared plus variance plus irreducible noise"
+    - "More complexity lowers bias and raises variance, giving a U-shaped validation curve"
+    - "High training and validation error means underfitting, add capacity or features"
+    - "Low training, high validation means overfitting, add data or regularization"
+    - "Cross-validation curves for both sizes make the diagnosis concrete"
+- id: mlf-002
+  category: ml-fundamentals
+  skills: [data-analysis, python]
+  difficulty: 2
+  prompt: "Compare L1 and L2 regularization. When would you pick one over the other?"
+  followups:
+    - "Why does L1 produce sparse weights while L2 does not?"
+    - "What is elastic net and when does it help?"
+    - "How does the regularization strength interact with feature scaling?"
+  good_answer:
+    - "L1 adds absolute weights, L2 adds squared weights to the loss"
+    - "L1 geometry creates corners on the constraint set, driving weights to exactly zero"
+    - "L2 shrinks weights smoothly and keeps correlated features sharing weight"
+    - "Pick L1 for feature selection or interpretable sparse models"
+    - "Pick L2 for dense correlated features and smoother optimization"
+    - "Both require features to be scaled or penalties become unfair"
+- id: mlf-003
+  category: ml-fundamentals
+  skills: [data-analysis, ml-evals]
+  difficulty: 1
+  prompt: "Explain precision, recall, and F1. Give me a scenario where you would optimize recall over precision and vice versa."
+  followups:
+    - "Why is F1 the harmonic mean rather than the arithmetic mean?"
+    - "How does moving the classification threshold change these numbers?"
+    - "What happens to accuracy on a 99 percent negative dataset?"
+  good_answer:
+    - "Precision is TP over TP plus FP, recall is TP over TP plus FN"
+    - "F1 balances them and punishes a score that is lopsided"
+    - "Recall matters when missed positives are costly, like fraud or defects"
+    - "Precision matters when false alarms are costly, like spam or user notifications"
+    - "Threshold tuning trades one against the other on the same model"
+    - "Accuracy is misleading under class imbalance"
+- id: mlf-004
+  category: ml-fundamentals
+  skills: [ml-evals, data-analysis]
+  difficulty: 2
+  prompt: "You have a dataset with 1 percent positives. Would you trust ROC-AUC? What would you use instead and why?"
+  followups:
+    - "Why can ROC-AUC look great while the model is useless in production?"
+    - "What is PR-AUC and how does it differ under imbalance?"
+    - "How would you set the operating point for deployment?"
+  good_answer:
+    - "ROC treats the huge negative class generously, FPR stays small even with many FP"
+    - "Precision-recall curves focus on the rare positive class"
+    - "PR-AUC beats a baseline equal to the positive rate as a sanity check"
+    - "Report precision and recall at a chosen operating point, not just a global score"
+    - "Stratified splits and enough positives in validation keep estimates stable"
+    - "Business cost of FP versus FN should pick the threshold"
+- id: mlf-005
+  category: ml-fundamentals
+  skills: [data-analysis, ml-evals]
+  difficulty: 2
+  prompt: "How would you set up cross-validation for a model that predicts tomorrow's sensor failure from historical time series?"
+  followups:
+    - "What breaks if you use random k-fold here?"
+    - "What is expanding window versus sliding window validation?"
+    - "How do you avoid leakage from features computed over the whole dataset?"
+  good_answer:
+    - "Random k-fold leaks future information into training folds"
+    - "Use time-ordered splits, train on the past, validate on the future"
+    - "Expanding window grows training data, sliding window keeps it fixed size"
+    - "All preprocessing, scaling, and target-like features must be fit inside each fold"
+    - "Multiple folds over time give variance estimates on performance"
+    - "Hold out the most recent period as a final untouched test set"
+- id: mlf-006
+  category: ml-fundamentals
+  skills: [data-analysis, python]
+  difficulty: 2
+  prompt: "Compare random forests and gradient boosted trees. Why do both work well on tabular data?"
+  followups:
+    - "Which one do you tune first and what hyperparameters matter most?"
+    - "How does each handle correlated features?"
+    - "When would a simple linear model beat both?"
+  good_answer:
+    - "Random forest is bagging, deep trees averaged in parallel to cut variance"
+    - "Boosting is sequential, each tree fits the residual of the ensemble"
+    - "RF is hard to overfit and nearly tuning free, boosting needs learning rate and early stopping"
+    - "Boosting usually wins on accuracy with tuning, RF wins on robustness and parallel training"
+    - "Trees handle nonlinearity, mixed scales, and missing values natively"
+    - "Linear models win with high-dimensional sparse features or strict interpretability needs"
+- id: mlf-007
+  category: ml-fundamentals
+  skills: [data-analysis, ml-evals]
+  difficulty: 2
+  prompt: "What is data leakage? Give me two concrete examples of how it sneaks into a model and how you would catch it."
+  followups:
+    - "What is target leakage versus feature leakage?"
+    - "How does leakage show up in the gap between offline and online metrics?"
+    - "Is scaling before the train-test split leakage?"
+  good_answer:
+    - "Leakage is information from the target or the future reaching the features"
+    - "Example, a column recorded after the outcome, like a claim ID predicting fraud"
+    - "Example, global normalization or imputation fit on the full dataset before splitting"
+    - "Symptoms are suspiciously perfect offline scores that collapse in production"
+    - "Fit all transforms inside CV folds and audit feature timestamps and provenance"
+    - "Feature importance spikes on suspicious columns are a red flag"
+- id: mlf-008
+  category: ml-fundamentals
+  skills: [data-analysis, cs-fundamentals]
+  difficulty: 1
+  prompt: "What does PCA actually do, and when would you use it in a machine learning pipeline?"
+  followups:
+    - "What do the principal components represent geometrically?"
+    - "Does PCA help with overfitting?"
+    - "Why must you center the data first?"
+  good_answer:
+    - "PCA finds orthogonal directions of maximum variance and projects onto them"
+    - "It is unsupervised, it ignores the target label"
+    - "Used for dimensionality reduction, visualization, decorrelation, and denoising"
+    - "Explained variance ratios guide how many components to keep"
+    - "Reduces parameters which can reduce overfitting on small datasets"
+    - "Must fit the transform on training data only to avoid leakage"
+- id: mlf-009
+  category: ml-fundamentals
+  skills: [data-analysis, cs-fundamentals]
+  difficulty: 1
+  prompt: "Explain how k-means works. What are its failure modes and how do you choose k?"
+  followups:
+    - "Why does initialization matter and what does k-means++ fix?"
+    - "What cluster shapes break k-means?"
+    - "Name one alternative algorithm and why you would use it."
+  good_answer:
+    - "Alternate assigning points to nearest centroid and recomputing centroids"
+    - "Converges to a local minimum, k-means++ spreads initial centers to improve it"
+    - "Assumes spherical, similar-size clusters, fails on elongated or density-varying shapes"
+    - "Needs feature scaling because it is distance based"
+    - "Choose k with elbow, silhouette score, or downstream task performance"
+    - "DBSCAN or GMM handle arbitrary shapes and outliers"
+- id: mlf-010
+  category: ml-fundamentals
+  skills: [data-analysis, python]
+  difficulty: 2
+  prompt: "Your training set has 100 times more negatives than positives. Walk me through your options, and which you would try first."
+  followups:
+    - "Why can oversampling with SMOTE be risky?"
+    - "How do class weights change the loss?"
+    - "What evaluation mistake do people make when resampling?"
+  good_answer:
+    - "Options are class-weighted loss, undersampling, oversampling, or threshold tuning"
+    - "Weighted loss is the cheapest first move, no data duplication"
+    - "SMOTE interpolates synthetic points and can leak structure or noise"
+    - "Never resample before splitting, only the training fold gets resampled"
+    - "Evaluate on the natural distribution, not the resampled one"
+    - "Collecting more positive examples is often the real fix"
+- id: mlf-011
+  category: ml-fundamentals
+  skills: [data-analysis, cs-fundamentals]
+  difficulty: 1
+  prompt: "What assumptions does linear regression make, and what breaks when you violate them?"
+  followups:
+    - "How do you check the linearity and homoscedasticity assumptions?"
+    - "Why is multicollinearity a problem for coefficients but not predictions?"
+    - "What would you try if residuals fan out?"
+  good_answer:
+    - "Linearity in parameters, independent errors, constant variance, roughly normal errors"
+    - "No strong multicollinearity among features"
+    - "Violations bias uncertainty estimates more than point predictions"
+    - "Residual plots against fitted values reveal curvature and fanning"
+    - "Log transforms or weighted least squares fix heteroscedasticity"
+    - "Ridge handles collinearity by shrinking correlated weights"
+- id: mlf-012
+  category: ml-fundamentals
+  skills: [data-analysis, python]
+  difficulty: 2
+  prompt: "You have a compute budget for hyperparameter tuning. Compare grid, random, and Bayesian search. Which do you pick and why?"
+  followups:
+    - "Why does random search beat grid when many parameters are unimportant?"
+    - "What does a Bayesian optimizer model, and what is acquisition?"
+    - "How do you tune without blowing the budget on early stopping tricks?"
+  good_answer:
+    - "Grid exhausts a lattice but wastes budget on irrelevant dimensions"
+    - "Random search samples each dimension and finds good regions with high probability"
+    - "Bayesian methods model the objective and pick points by expected improvement"
+    - "Bayesian wins when evaluations are expensive and dimensions are moderate"
+    - "Coarse-to-fine, early stopping with care, and log-scale ranges save budget"
+    - "Fix the CV protocol first so comparisons are apples to apples"
+- id: mlf-013
+  category: ml-fundamentals
+  skills: [ml-evals, data-analysis]
+  difficulty: 3
+  prompt: "What does it mean for a classifier to be calibrated, and why would a downstream system care even if AUC is already high?"
+  followups:
+    - "How do you measure calibration?"
+    - "Explain temperature scaling and Platt scaling."
+    - "When does poor calibration actually cost money?"
+  good_answer:
+    - "Calibrated means a 0.8 predicted probability lands right about 80 percent of the time"
+    - "AUC only ranks, it ignores the absolute probability values"
+    - "Reliability diagrams and expected calibration error quantify it"
+    - "Temperature scaling fits one parameter on a validation set, Platt fits a sigmoid"
+    - "Downstream thresholds, cost calculations, and ensembles need real probabilities"
+    - "Heavily regularized or boosted models are often overconfident"
+- id: mlf-014
+  category: ml-fundamentals
+  skills: [data-analysis, nlp]
+  difficulty: 2
+  prompt: "How would you encode categorical features for a model? Compare one-hot, target encoding, and learned embeddings."
+  followups:
+    - "What breaks with one-hot on a feature with 100k levels?"
+    - "Why does target encoding need smoothing and out-of-fold computation?"
+    - "When are embeddings clearly worth it?"
+  good_answer:
+    - "One-hot is unbiased but explodes dimension and cannot share statistics"
+    - "Target encoding compresses to a mean but leaks label info without smoothing and CV-safe computation"
+    - "Embeddings learn dense similar representations, need data and a neural model"
+    - "High-cardinality features favor hashing, embeddings, or careful target encoding"
+    - "Rare levels should be bucketed or shared into an unknown token"
+    - "Choice interacts with model class, trees versus neural nets"
+- id: mlf-015
+  category: ml-fundamentals
+  skills: [ml-evals, data-analysis]
+  difficulty: 3
+  prompt: "Your offline model improved but the online A/B test showed no lift. How do you investigate?"
+  followups:
+    - "What mismatches exist between offline metrics and online metrics?"
+    - "How would you check the experiment itself was valid?"
+    - "What is the difference between the model being worse and the integration being worse?"
+  good_answer:
+    - "First check experiment validity, randomization, sample ratio mismatch, novelty effects"
+    - "Compare offline metric to the online north-star metric, they often diverge"
+    - "Look at serving latency, feature parity, and training-serving skew"
+    - "Segment results, the average can hide wins and losses across populations"
+    - "Instrument the pipeline, log online features and replay them offline"
+    - "Consider distribution shift between the static dataset and live traffic"
