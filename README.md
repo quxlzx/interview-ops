@@ -13,6 +13,7 @@ sharing one skill vocabulary:
 
 ## Setup
 ```
+python3 -m pip install -r requirements.txt   # PyYAML
 cp data/my_skills.example.yaml data/my_skills.yaml   # then rate yourself honestly
 ./mine.py                                            # point --jobs at your own store
 ./drill.py init && ./drill.py drill
